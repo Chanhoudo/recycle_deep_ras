@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        img {
+            max-width: 80%;
+            height: auto;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Classification</h1>
+    <div>
+        <img id="originalImage" src="" alt="Original Image">
+    </div>
+    <div>
+        <img id="labelledImage" src="" alt="Labelled Image">
+    </div>
+    <div>
+        <img id="graphImage" src="" alt="Graph Image">
+    </div>
+    <h2 id="label">Label: </h2>
+
+    <script>
+        function updateImages() {
+            fetch('/image_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('originalImage').src = data.original_image_url;
+                    document.getElementById('labelledImage').src = 'data:image/jpeg;base64,' + data.labelled_image_base64;
+                    document.getElementById('graphImage').src = 'data:image/png;base64,' + data.graph_img;
+                    document.getElementById('label').innerText = 'Label: ' + data.label;
+                })
+                .catch(error => console.error('Error fetching image data:', error));
+        }
+
+        // 5초마다 updateImages 함수 호출
+        setInterval(updateImages, 5000);
+
+        // 페이지 로드 시 첫 번째 이미지를 로드
+        updateImages();
+    </script>
+</body>
+</html>

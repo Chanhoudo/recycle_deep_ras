@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    <script>
+        function fetchImageData() {
+            fetch('/image_data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update image and graph on the page
+                    document.getElementById('original-image').src = data.original_image_url;
+                    document.getElementById('labelled-image').src = 'data:image/jpeg;base64,' + data.labelled_image_base64;
+                    document.getElementById('graph').src = 'data:image/png;base64,' + data.graph_img;
+
+                    // Update the label
+                    document.getElementById('label').textContent = `Label: ${data.label}`;
+                })
+                .catch(error => console.error('Error fetching image data:', error));
+        }
+
+        // Automatically fetch new image data every 5 seconds
+        setInterval(fetchImageData, 5000);
+
+        // Fetch image data on page load
+        window.onload = fetchImageData;
+    </script>
+</head>
+<body>
+    <h1>Image Viewer</h1>
+    <img id="original-image" alt="Original Image">
+    <br>
+    <img id="labelled-image" alt="Labelled Image">
+    <br>
+    <img id="graph" alt="Graph">
+    <br>
+    <div id="label"></div>
+</body>
+</html>

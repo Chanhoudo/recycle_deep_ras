@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Pi Camera</title>
+    <style>
+        body { display: flex; }
+        #image-container { flex: 1; text-align: center; }
+        #info-container { flex: 1; padding: 20px; }
+        #label { font-size: 24px; }
+        #graph { margin-top: 20px; }
+        img { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="image-container">
+        <h1>Raspberry Pi Camera Feed</h1>
+        <img src="{{ url_for('video_feed') }}" width="640" height="480" alt="Camera Feed">
+    </div>
+    <div id="info-container">
+        <h2>Detected Label: <span id="label">Waiting...</span></h2>
+        <h3>Graph of Class Probabilities:</h3>
+        <img id="graph" src="" alt="Class Probabilities Graph">
+    </div>
+    <script>
+        function fetchPrediction() {
+            fetch('/predict')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('label').textContent = `${data.label} (Confidence: ${data.confidence * 100.toFixed(2)}%)`;
+                    document.getElementById('graph').src = 'data:image/png;base64,' + data.graph_img;
+                });
+        }
+
+        setInterval(fetchPrediction, 10000); // Fetch prediction every 10 seconds
+    </script>
+</body>
+</html>

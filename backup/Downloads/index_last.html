@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Display</title>
+</head>
+<body>
+    <h1>Image Display</h1>
+    <div>
+        <h2>Current Image</h2>
+        <img id="currentImage" src="{{ url_for('get_image', filename='') }}" alt="Current Image" style="max-width: 100%; height: auto;">
+    </div>
+    <div>
+        <h2>Prediction Results</h2>
+        <p>Label: <span id="label"></span></p>
+        <p>Confidence: <span id="confidence"></span></p>
+        <img id="graphImage" src="" alt="Class Probabilities Graph">
+    </div>
+    <script>
+        function fetchPrediction() {
+            fetch('/predict')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('currentImage').src = data.image_url;
+                    document.getElementById('label').textContent = data.label;
+                    document.getElementById('confidence').textContent = data.confidence;
+                    document.getElementById('graphImage').src = 'data:image/png;base64,' + data.graph_img;
+                })
+                .catch(error => console.error('Error fetching prediction:', error));
+        }
+
+        // Fetch prediction every 5 seconds
+        setInterval(fetchPrediction, 5000);
+    </script>
+</body>
+</html>

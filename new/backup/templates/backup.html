@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image and Graph Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-direction: column;
+        }
+        .images {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        .images img {
+            max-width: 45%;
+            height: auto;
+        }
+        .graph-container {
+            text-align: center;
+        }
+        .graph-container img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="images">
+            <div class="original-image">
+                <img id="originalImage" src="" alt="Original Image">
+            </div>
+            <div class="labelled-image">
+                <img id="labelledImage" src="" alt="Labelled Image">
+            </div>
+        </div>
+        <div class="graph-container">
+            <img id="graphImage" src="" alt="Graph">
+        </div>
+    </div>
+    <script>
+        function fetchImageData() {
+            fetch('/image_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.original_image_url) {
+                        document.getElementById('originalImage').src = data.original_image_url;
+                    }
+                    if (data.labelled_image_base64) {
+                        document.getElementById('labelledImage').src = 'data:image/jpeg;base64,' + data.labelled_image_base64;
+                    }
+                    if (data.graph_img) {
+                        document.getElementById('graphImage').src = 'data:image/png;base64,' + data.graph_img;
+                    }
+                })
+                .catch(error => console.error('Error fetching image data:', error));
+        }
+
+        // ÃÊ±â µ¥ÀÌÅÍ ·Îµå
+        fetchImageData();
+
+        // 5ÃÊ¸¶´Ù µ¥ÀÌÅÍ °»½Å
+        setInterval(fetchImageData, 5000);
+    </script>
+</body>
+</html>

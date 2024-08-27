@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Prediction</title>
+    <style>
+        img {
+            max-width: 45%;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Current Image and Prediction</h1>
+    <div>
+        <h2>Original Image</h2>
+        <img id="original-img" src="" alt="Original Image">
+    </div>
+    <div>
+        <h2>Predicted Image</h2>
+        <img id="predicted-img" src="" alt="Predicted Image">
+    </div>
+    <div>
+        <h2>Class Probabilities</h2>
+        <img id="graph-img" src="" alt="Graph Image">
+    </div>
+
+    <script>
+        async function loadImage() {
+            const response = await fetch('/current_image');
+            const data = await response.json();
+
+            document.getElementById('original-img').src = data.image_url;
+            document.getElementById('predicted-img').src = 'data:image/jpeg;base64,' + data.annotated_img;
+            document.getElementById('graph-img').src = 'data:image/png;base64,' + data.graph_img;
+        }
+
+        window.onload = loadImage;
+        setInterval(loadImage, 5000); // 5초마다 이미지 갱신
+    </script>
+</body>
+</html>

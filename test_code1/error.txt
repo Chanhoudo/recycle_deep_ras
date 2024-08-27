@@ -1,0 +1,22 @@
+2024-08-20 09:58:50,274] ERROR in app: Exception on /predict [GET]
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/flask/app.py", line 2525, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/flask/app.py", line 1822, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/flask/app.py", line 1820, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/flask/app.py", line 1796, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/aisw/Downloads/app3.py", line 97, in predict
+    label, confidence = predict_image(frame)
+                        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/aisw/Downloads/app3.py", line 40, in predict_image
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+  File "/home/aisw/.local/lib/python3.11/site-packages/tflite_runtime/interpreter.py", line 720, in set_tensor
+    self._interpreter.SetTensor(tensor_index, value)
+ValueError: Cannot set tensor: Dimension mismatch. Got 3 but expected 640 for dimension 2 of input 0.

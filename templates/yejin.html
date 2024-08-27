@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검출 시스템</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: auto auto auto auto;
+            gap: 10px;
+        }
+        .box {
+            border: 1px solid #007BFF;
+            padding: 20px;
+            text-align: center;
+            background-color: #E9F7FF;
+            border-radius: 8px;
+        }
+        .box img {
+            max-width: 100%;
+            height: auto;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+        }
+        .radio-group label:hover {
+            background-color: #e0e0e0;
+        }
+        .setting-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #history {
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 엣지 디바이스에서 관심 객체 검출 -->
+        <div class="box" style="grid-column: 1 / span 2;">
+            <h2>엔지 디바이스에서 관심 객체 검출</h2>
+        </div>
+
+        <!-- 카메라 입력 뷰어 -->
+        <div class="box">
+            <h3>카메라 입력 뷰어</h3>
+            <img id="camera-view" src="/camera_image" alt="Camera View">
+            <p id="label">Label: </p>
+        </div>
+
+        <!-- 관심 객체 설정 -->
+        <div class="box">
+            <h3>관심 객체 설정</h3>
+            <div class="setting-section">
+                <!-- 관심 객체 종류 -->
+                <div>
+                    <h4>관심 객체 종류</h4>
+                    <div class="radio-group" id="object-type-buttons">
+                        <label><input type="radio" name="object-type" value="캔" onclick="selectObjectType('캔')">캔</label>
+                        <label><input type="radio" name="object-type" value="플라스틱" onclick="selectObjectType('플라스틱')">플라스틱</label>
+                        <label><input type="radio" name="object-type" value="페트병" onclick="selectObjectType('페트병')">페트병</label>
+                        <label><input type="radio" name="object-type" value="종이" onclick="selectObjectType('종이')">종이</label>
+                    </div>
+                    <button onclick="setObjectType()">관심 객체 종류 설정</button>
+                </div>
+
+                <!-- 관심 객체 크기 -->
+                <div>
+                    <h4>관심 객체 크기</h4>
+                    <div class="radio-group" id="object-size-buttons">
+                        <label><input type="radio" name="object-size" value="작음" onclick="selectObjectSize('작음')">작음</label>
+                        <label><input type="radio" name="object-size" value="중간" onclick="selectObjectSize('중간')">중간</label>
+                        <label><input type="radio" name="object-size" value="큼" onclick="selectObjectSize('큼')">큼</label>
+                    </div>
+                    <button onclick="setObjectSize()">관심 객체 크기 설정</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 검지 결과 -->
+        <div class="box">
+            <h3>검지 결과</h3>
+            <p>Label: <span id="detection-label">nothing</span></p>
+            <p>Confidence: <span id="detection-confidence">0.711</span></p>
+            <img id="detection-result" src="/path_to_detection_image" alt="Detection Result">
+            <a id="save-detection" href="#" class="button">파일로 저장 (검지된 이미지, 추가 정보)</a>
+        </div>
+
+        <!-- 검지 이력 -->
+        <div class="box">
+            <h3>검지 이력</h3>
+            <div id="history">이력이 여기에 표시됩니다.</div>
+            <a id="download-history" href="/download_history" class="button">파일로 저장</a>
+        </div>
+    </div>
+
+    <script>
+        let selectedObjectType = null;
+        let selectedObjectSize = null;
+
+        // 5초마다 카메라 뷰 새로고침
+        function updateImages() {
+            fetch('/image_data')
+                .then(response => response.json())
+                .then(data => {
+            		document.getElementById("camera-view").src = 'data:image/jpeg;base64,' + data.labelled_image_base64;
+            		document.getElementById('label').innerText = 'Label: ' + data.label;
+			document.getElementById('detection-label').innerText = 'Label: ' + data.label;
+            		document.getElementById('graphImage').src = 'data:image/png;base64,' + data.graph_img;
+		})
+		.catch(error => console.error('Error fetching image data:', error));
+        }
+
+        // 검지 결과를 서버에서 가져오는 함수 (예시용, 필요시 구현)
+        function fetchDetectionResults() {
+            fetch('/get_detection_results')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('detection-label').innerText = data.label;
+                    document.getElementById('detection-confidence').innerText = data.confidence;
+                });
+        }
+
+        // 검지 이력 불러오기
+        function fetchHistory() {
+            fetch('/get_history')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('history').innerText = data.history;
+                });
+        }
+
+        // 초기화
+        window.onload = function() {
+            fetchHistory();
+        };
+
+        function selectObjectType(type) {
+            selectedObjectType = type;
+            document.getElementById('selected-object-type').textContent = `선택된 객체: ${type}`;
+        }
+
+        function setObjectType() {
+            if (selectedObjectType) {
+                alert(`관심 객체 종류가 설정되었습니다: ${selectedObjectType}`);
+            } else {
+                alert('먼저 객체 종류를 선택해주세요.');
+            }
+        }
+
+	// 5초마다 updateImages 함수 호출
+        setInterval(updateImages, 5000);
+
+        // 페이지 로드 시 첫 번째 이미지를 로드
+        updateImages();
+
+        function selectObjectSize(size) {
+            selectedObjectSize = size;
+        }
+
+        function setObjectSize() {
+            if (selectedObjectSize) {
+                alert(`관심 객체 크기가 설정되었습니다: ${selectedObjectSize}`);
+            } else {
+                alert('먼저 객체 크기를 선택해주세요.');
+            }
+        }
+    </script>
+</body>
+</html>
